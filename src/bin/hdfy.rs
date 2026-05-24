@@ -6,9 +6,9 @@ use std::fs::read_dir;
 
 use clap::Parser;
 use hdf5_metno as hdf5;
-use indicatif::ProgressBar;
 use ndarray::Array;
 
+use quack::progress::MaybeProgressBar;
 use quack::io::read_daq_file;
 use quack::io::read_waveform_length;
 use quack::io::Writer;
@@ -30,6 +30,9 @@ struct CLI {
 
     #[arg(long, default_value_t=false)]
     overwrite: bool,
+
+    #[arg(long, default_value_t=false)]
+    batch: bool,
 
 }
 
@@ -70,8 +73,7 @@ pub fn main() -> Result<()> {
 
     println!("Initialization time: {:?}", timer.elapsed().as_secs_f64());
 
-    let pb = ProgressBar::new(n_files as u64);
-
+    let pb = MaybeProgressBar::new(n_files, args.batch);
 
     let timer = Instant::now();
 
