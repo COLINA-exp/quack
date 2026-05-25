@@ -56,12 +56,13 @@ pub fn read_event(chunk: &str, channels: &Vec<usize>) -> DaqEvent {
     let time      = get_token::<u64>  (&meta[1], 1, "time stamp");
     let nsamples  = get_token::<usize>(&meta[2], 1, "number of samples");
     let sampling  = get_token::<f32>  (&meta[3], 3, "sampling time");
-    let waveforms = Array2::from_shape_vec((nchannels, nsamples),
+    let waveforms = Array2::from_shape_vec((nsamples, nchannels),
         waves.into_iter()
              .flat_map(|line| get_channels(&line, &channels))
              .collect::<Vec<f32>>()
     ).expect("Could not create waveform array");
 
+    let waveforms = waveforms.reversed_axes();
     DaqEvent{number, time, sampling, waveforms}
 }
 
