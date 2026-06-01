@@ -5,14 +5,13 @@ use std::time::Instant;
 use std::fs::read_dir;
 
 use clap::Parser;
+use h5rio::{ArrayHdf5Writer, TableHdf5Writer};
 use hdf5_metno as hdf5;
 use ndarray::Array;
 
 use quack::progress::MaybeProgressBar;
 use quack::io::read_daq_file;
 use quack::io::read_waveform_length;
-use quack::io::Writer;
-use quack::io::{ArrayHdf5Writer, ScalarHdf5Writer};
 use quack::io::hdf5_types::DaqEventMeta;
 
 #[derive(Parser, Debug)]
@@ -67,9 +66,9 @@ pub fn main() -> Result<()> {
     let nsamples  = read_waveform_length(input_files.first().unwrap());
     let nchannels = args.channels.len();
 
-    let  evt_writer = ScalarHdf5Writer::<DaqEventMeta>::new(Rc::clone(&ofile), "/events"   , 1024                           ).unwrap();
-    let time_writer =  ArrayHdf5Writer::<         f32>::new(Rc::clone(&ofile), "/time"     ,    1, vec![nsamples]           ).unwrap();
-    let   wf_writer =  ArrayHdf5Writer::<         f32>::new(Rc::clone(&ofile), "/waveforms",  512, vec![nchannels, nsamples]).unwrap();
+    let  evt_writer = TableHdf5Writer::<DaqEventMeta>::new(Rc::clone(&ofile), "/events"   , 1024                           ).unwrap();
+    let time_writer = ArrayHdf5Writer::<         f32>::new(Rc::clone(&ofile), "/time"     ,    1, vec![nsamples]           ).unwrap();
+    let   wf_writer = ArrayHdf5Writer::<         f32>::new(Rc::clone(&ofile), "/waveforms",  512, vec![nchannels, nsamples]).unwrap();
 
     println!("Initialization time: {:?}", timer.elapsed().as_secs_f64());
 
